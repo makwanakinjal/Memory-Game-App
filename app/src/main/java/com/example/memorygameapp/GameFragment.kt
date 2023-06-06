@@ -2,19 +2,22 @@ package com.example.memorygameapp
 
 import android.content.Context
 import android.os.Bundle
+import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class GameFragment : Fragment() {
-
+class GameFragment(var gridSize:Int) : Fragment() {
     interface GameFragmentListener {
 
-        fun makeTiles () : ArrayList<TextView>
+        fun makeTiles () : ArrayList<Tile>
+        fun tileTapped (tile: Tile,index:Int)
     }
 
     private lateinit var caller: GameFragmentListener
@@ -37,23 +40,22 @@ class GameFragment : Fragment() {
 
         val context = activity as Context
         val recyclerView = frag.findViewById<RecyclerView>(R.id.gamerv)
-        recyclerView.layoutManager = GridLayoutManager(context,4)
+        recyclerView.layoutManager = GridLayoutManager(context,gridSize)
 
-        val textViews = caller.makeTiles()
-        recyclerView.adapter = GameRecyclerAdapter(textViews)
+        val tiles = caller.makeTiles()
+        recyclerView.adapter = GameRecyclerAdapter(tiles)
 
 
         return frag
     }
 
     companion object {
-
-        fun newInstance(): GameFragment{
-            return GameFragment()
+        fun newInstance(grid:Int): GameFragment{
+            return GameFragment(grid)
         }
     }
 
-  internal inner class GameRecyclerAdapter(val inputData: ArrayList<TextView>):
+  internal inner class GameRecyclerAdapter(val inputData: ArrayList<Tile>):
           RecyclerView.Adapter<GameRecyclerAdapter.RecyclerViewHolder> ()
 
   {
@@ -69,9 +71,21 @@ class GameFragment : Fragment() {
 
       override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
 
-          val thisTile = inputData[position]
+          val thisTile:Tile = inputData[position]
+
+          val params = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+          ViewGroup.LayoutParams.MATCH_PARENT)
+
+          thisTile.layoutParams = params
+          params.setMargins(5,5,5,5)
+          thisTile.gravity= Gravity.CENTER
+          thisTile.textSize = 24F
 
           holder.tileParent.addView(thisTile)
+
+          holder.tileParent.setOnClickListener {
+              caller.tileTapped(thisTile,position)
+          }
       }
 
 
@@ -81,7 +95,6 @@ class GameFragment : Fragment() {
 
                  val tileParent = itemView.findViewById<SquareFrameLayout>(R.id.tileParent)
       }
-
 
   }
 }
