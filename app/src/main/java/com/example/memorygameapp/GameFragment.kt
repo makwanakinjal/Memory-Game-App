@@ -13,7 +13,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class GameFragment(var gridSize:Int) : Fragment() {
+class GameFragment(var gridSize: Int) : Fragment() {
     interface GameFragmentListener {
 
         fun makeTiles () : ArrayList<Tile>
@@ -50,8 +50,8 @@ class GameFragment(var gridSize:Int) : Fragment() {
     }
 
     companion object {
-        fun newInstance(grid:Int): GameFragment{
-            return GameFragment(grid)
+        fun newInstance(gridSize:Int): GameFragment{
+        return GameFragment(gridSize)
         }
     }
 

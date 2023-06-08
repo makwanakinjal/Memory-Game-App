@@ -4,23 +4,51 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.view.LayoutInflater
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.OneShotPreDrawListener.add
 import androidx.fragment.app.Fragment
 
 class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
+    var gridSize:Int =0
 
-    var gridSize = 4
-
-  private  var thisSecondTap = false
-  private  lateinit var tile1 : Tile
+    private  var thisSecondTap = false
+    private  lateinit var tile1 : Tile
     private  lateinit var tile2 : Tile
 
-   private var gameActive = true
+    private var gameActive = true
 
-   private val foundTiles : ArrayList<Tile> = ArrayList()
+    private val foundTiles : ArrayList<Tile> = ArrayList()
+    fun showGridSizeDialog(){
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_grid_size,null)
+        val gridSizeEditText = dialogView.findViewById<EditText>(R.id.gridSizeEditText)
+
+        val dialogBuilder = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setTitle("Grid Size")
+            .setCancelable(false)
+            .setPositiveButton("Confirm") {
+                    dialog , _ ->
+                val gridSizeText = gridSizeEditText.text.toString()
+                val gridSize = gridSizeText.toIntOrNull()
+
+                if(gridSize!= null && gridSize>= 2){
+                    this.gridSize = gridSize
+                    restartGame()
+                    dialog.dismiss()
+                }
+                else{
+                    Toast.makeText(this,"Invalid Grid Size!",Toast.LENGTH_LONG).show()
+                }
+            }
+
+        val dialog = dialogBuilder.create()
+        dialog.show()
+    }
 
    override fun makeTiles(): ArrayList<Tile>{
         val tilesArray : ArrayList<Tile> = ArrayList()
@@ -79,6 +107,7 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
             foundTiles.add(tile2)
 
             if(foundTiles.size == gridSize * gridSize){
+                stopTimer()
                 // won the game
                 Toast.makeText(this,"You Won the Game",Toast.LENGTH_LONG).show()
             }
@@ -110,15 +139,68 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
             .beginTransaction()
             .add(R.id.gameLayout,GameFragment.newInstance(gridSize),
                 "game").commit()
+
+       startTimer()
     }
+
+    private lateinit var timerTextView: TextView
+    private var startTime: Long =0
+    private var elapsedTime: Long =0
+    private lateinit var timerHandler: Handler
+    private lateinit var timerRunnable: Runnable
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        restartGame()
+
+        showGridSizeDialog()
+       // restartGame()
         val restartButton = findViewById<Button>(R.id.restartButton)
         restartButton.setOnClickListener {
             restartGame()
         }
+
+        timerTextView = findViewById(R.id.timerTextView)
+        timerHandler = Handler()
+        timerRunnable = Runnable { updateTimer() }
+    }
+
+    private fun startTimer(){
+
+        startTime = System.currentTimeMillis()
+        timerHandler.postDelayed(timerRunnable,0)
+    }
+    private fun stopTimer(){
+
+        timerHandler.removeCallbacks(timerRunnable)
+    }
+    private fun updateTimer(){
+        elapsedTime = System.currentTimeMillis() - startTime
+        val seconds = (elapsedTime / 1000).toInt()
+        val minutes = seconds/60
+        val secondsDisplay = seconds % 60
+        timerTextView.text = String.format("%02d:%02d",minutes,secondsDisplay)
+        timerHandler.postDelayed(timerRunnable,1000)
+    }
+    private fun showExitDialog(){
+        val dialogBuilder = AlertDialog.Builder(this)
+            .setTitle("Exit Game")
+            .setMessage("Are you sure , You want to exit the game?")
+            .setPositiveButton("Exit"){
+                dialog, _ ->
+                finish()
+            }
+            .setNegativeButton("Cancel") {
+                dialog,  _ ->
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+
+        val dialog = dialogBuilder.create()
+        dialog.show()
+    }
+
+    override fun onBackPressed() {
+        showExitDialog()
     }
 }
