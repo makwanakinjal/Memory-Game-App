@@ -1,6 +1,7 @@
 package com.example.memorygameapp
 
 import android.graphics.Color
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -23,9 +24,16 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
     private var gameActive = true
 
     private val foundTiles : ArrayList<Tile> = ArrayList()
+
+    fun playWinSound(){
+        winSoundPlayer.start()
+    }
+
+
     fun showGridSizeDialog(){
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_grid_size,null)
         val gridSizeEditText = dialogView.findViewById<EditText>(R.id.gridSizeEditText)
+
 
         val dialogBuilder = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -48,6 +56,7 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
 
         val dialog = dialogBuilder.create()
         dialog.show()
+       // gameStartSound()
     }
 
    override fun makeTiles(): ArrayList<Tile>{
@@ -108,6 +117,7 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
 
             if(foundTiles.size == gridSize * gridSize){
                 stopTimer()
+                playWinSound()
                 // won the game
                 Toast.makeText(this,"You Won the Game",Toast.LENGTH_LONG).show()
             }
@@ -148,6 +158,9 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
     private var elapsedTime: Long =0
     private lateinit var timerHandler: Handler
     private lateinit var timerRunnable: Runnable
+
+private lateinit var winSoundPlayer:MediaPlayer
+private lateinit var gameStart:MediaPlayer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -163,7 +176,12 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
         timerTextView = findViewById(R.id.timerTextView)
         timerHandler = Handler()
         timerRunnable = Runnable { updateTimer() }
+
+      winSoundPlayer =  MediaPlayer.create(this,R.raw.game_win_sound)
+
+
     }
+
 
     private fun startTimer(){
 
@@ -203,4 +221,6 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
     override fun onBackPressed() {
         showExitDialog()
     }
+
+
 }
