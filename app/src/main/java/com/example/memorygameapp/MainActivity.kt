@@ -160,11 +160,10 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
     private lateinit var timerRunnable: Runnable
 
 private lateinit var winSoundPlayer:MediaPlayer
-private lateinit var gameStart:MediaPlayer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
 
         showGridSizeDialog()
        // restartGame()
