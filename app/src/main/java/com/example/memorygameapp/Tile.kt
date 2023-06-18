@@ -30,8 +30,8 @@ data class Tile (var myContext: Context, var value:Int) : androidx.appcompat.wid
         val objectAnim_2 = ObjectAnimator.ofFloat(this,
             "scaleX",0f,1f)
         
-        objectAnim_1.duration = 250
-        objectAnim_2.duration = 250
+        objectAnim_1.duration = 150
+        objectAnim_2.duration = 150
         
         objectAnim_1.interpolator = DecelerateInterpolator()
         objectAnim_2.interpolator = AccelerateInterpolator()
@@ -44,17 +44,17 @@ data class Tile (var myContext: Context, var value:Int) : androidx.appcompat.wid
                 when(tileStatus){
                     Status.UNKNOWN -> {
                         this@Tile.text = "🫥"
-                        this@Tile.setBackgroundColor(Color.WHITE)
+                        this@Tile.setBackgroundColor(Color.rgb(74,218,203))
                     }
                     Status.FLIPPED -> {
 
                         this@Tile.text = this@Tile.value.toString()
-                        this@Tile.setBackgroundColor(Color.rgb(230,0,230))
+                        this@Tile.setBackgroundColor(Color.rgb(218,74,206))
                     }
                     Status.FOUND -> {
 
                         this@Tile.text = "😍"
-                        this@Tile.setBackgroundColor(Color.rgb(26,26,255))
+                        this@Tile.setBackgroundColor(Color.rgb(78,125,232))
                     }
                 }
 

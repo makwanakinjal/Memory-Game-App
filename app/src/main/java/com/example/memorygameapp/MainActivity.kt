@@ -5,6 +5,7 @@ import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.text.InputType
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
@@ -31,12 +32,14 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
 
 
     fun showGridSizeDialog(){
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_grid_size,null)
-        val gridSizeEditText = dialogView.findViewById<EditText>(R.id.gridSizeEditText)
 
+
+val gridSizeEditText = EditText(this)
+        gridSizeEditText.hint = "Enter Grid Size"
+        gridSizeEditText.inputType = InputType.TYPE_CLASS_NUMBER
 
         val dialogBuilder = AlertDialog.Builder(this)
-            .setView(dialogView)
+            .setView(gridSizeEditText)
             .setTitle("Grid Size")
             .setCancelable(false)
             .setPositiveButton("Confirm") {

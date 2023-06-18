@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1F635B"
-    tools:context=".GameFragment" >
+    android:background="@drawable/splashscreen"
+    tools:context=".GameFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/gamerv"
