@@ -24,18 +24,19 @@ data class Tile (var myContext: Context, var value:Int) : androidx.appcompat.wid
     var tileStatus: Status = Status.UNKNOWN
     fun updateTile(){
 
+
         val objectAnim_1 = ObjectAnimator.ofFloat(this,
             "scaleX",1f,0f)
 
         val objectAnim_2 = ObjectAnimator.ofFloat(this,
             "scaleX",0f,1f)
-        
+
         objectAnim_1.duration = 150
         objectAnim_2.duration = 150
-        
+
         objectAnim_1.interpolator = DecelerateInterpolator()
         objectAnim_2.interpolator = AccelerateInterpolator()
-        
+
         objectAnim_1.addListener(object : AnimatorListenerAdapter ()
         {
             override fun onAnimationEnd(animation: Animator) {
@@ -63,7 +64,6 @@ data class Tile (var myContext: Context, var value:Int) : androidx.appcompat.wid
         })
 
         objectAnim_1.start()
-
 
     }
 }

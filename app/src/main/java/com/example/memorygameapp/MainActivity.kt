@@ -1,5 +1,9 @@
 package com.example.memorygameapp
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.graphics.Color
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
@@ -7,6 +11,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.InputType
 import android.view.LayoutInflater
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -15,12 +20,16 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.OneShotPreDrawListener.add
 import androidx.fragment.app.Fragment
 
+enum class Difficulty{
+    EASY , INTERMEDIATE , DIFFICULT
+}
 class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
     var gridSize:Int =0
 
     private  var thisSecondTap = false
     private  lateinit var tile1 : Tile
     private  lateinit var tile2 : Tile
+    private lateinit var winAnimation: AnimatorSet
 
     private var gameActive = true
 
@@ -30,52 +39,63 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
         winSoundPlayer.start()
     }
 
+    private fun handleDifficultyLevel(difficulty: Difficulty){
+        gridSize = when(difficulty){
+            Difficulty.EASY -> 4
+            Difficulty.INTERMEDIATE -> 6
+            Difficulty.DIFFICULT -> 8
+        }
+        restartGame()
+    }
 
     fun showGridSizeDialog(){
 
-
-val gridSizeEditText = EditText(this)
-        gridSizeEditText.hint = "Enter Grid Size"
-        gridSizeEditText.inputType = InputType.TYPE_CLASS_NUMBER
+        val difficultyLevels = arrayOf("Easy", "Intermediate", "Difficult")
 
         val dialogBuilder = AlertDialog.Builder(this)
-            .setView(gridSizeEditText)
-            .setTitle("Grid Size")
-            .setCancelable(false)
-            .setPositiveButton("Confirm") {
-                    dialog , _ ->
-                val gridSizeText = gridSizeEditText.text.toString()
-                val gridSize = gridSizeText.toIntOrNull()
-
-                if(gridSize!= null && gridSize>= 2){
-                    this.gridSize = gridSize
-                    restartGame()
-                    dialog.dismiss()
+            .setTitle("Select Difficulty Level")
+            .setSingleChoiceItems(difficultyLevels,-1){
+                dialog , which ->
+                val difficulty = when(which){
+                    0 -> Difficulty.EASY
+                    1 -> Difficulty.INTERMEDIATE
+                    2 -> Difficulty.DIFFICULT
+                    else -> Difficulty.EASY
                 }
-                else{
-                    Toast.makeText(this,"Invalid Grid Size!",Toast.LENGTH_LONG).show()
-                }
+                dialog.dismiss()
+                handleDifficultyLevel(difficulty)
             }
+            .setCancelable(false)
 
         val dialog = dialogBuilder.create()
         dialog.show()
-       // gameStartSound()
+
     }
+
 
    override fun makeTiles(): ArrayList<Tile>{
         val tilesArray : ArrayList<Tile> = ArrayList()
-        for (i in 1..gridSize * gridSize){
 
-            var num:Int = i
-            if(num> gridSize * gridSize /2)
-                num-= gridSize * gridSize/2
+       val centerIndex = gridSize * gridSize /2
+       val isOddGridSize = gridSize % 2 == 1
 
-            val newTile = Tile(this,num)
+       for (i in 1..gridSize * gridSize ){
 
-            newTile.updateTile()
+           var num:Int
+           if(isOddGridSize && i== centerIndex + 1){
+               num = -1
+           }
+           else{
+               num = i
+               if (num> gridSize * gridSize /2){
+                   num-= gridSize * gridSize/2
+               }
+           }
 
-            tilesArray.add(newTile)
-        }
+           val newTile = Tile(this,num)
+           newTile.updateTile()
+           tilesArray.add(newTile)
+       }
 
        tilesArray.shuffle()
         return tilesArray
@@ -123,6 +143,7 @@ val gridSizeEditText = EditText(this)
                 playWinSound()
                 // won the game
                 Toast.makeText(this,"You Won the Game",Toast.LENGTH_LONG).show()
+
             }
         }
         else{
@@ -223,6 +244,7 @@ private lateinit var winSoundPlayer:MediaPlayer
     override fun onBackPressed() {
         showExitDialog()
     }
+
 
 
 }

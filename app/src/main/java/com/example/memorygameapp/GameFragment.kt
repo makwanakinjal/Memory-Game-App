@@ -34,6 +34,8 @@ class GameFragment(var gridSize: Int) : Fragment() {
                      container: ViewGroup?,
                      savedInstanceState: Bundle? ): View? {
 
+        val gridSize = arguments?.getInt("gridSize")?: 4
+
         val frag:View = inflater.inflate(R.layout.fragment_game,
                         container, false)
 
@@ -51,7 +53,13 @@ class GameFragment(var gridSize: Int) : Fragment() {
 
     companion object {
         fun newInstance(gridSize:Int): GameFragment{
-        return GameFragment(gridSize)
+
+            val fragment = GameFragment(gridSize)
+            val args = Bundle()
+            args.putInt("gridSize",gridSize)
+            fragment.arguments = args
+            return fragment
+
         }
     }
 
