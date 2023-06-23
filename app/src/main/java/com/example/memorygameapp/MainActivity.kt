@@ -4,16 +4,21 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.content.Context
 import android.graphics.Color
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.text.InputType
+import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -139,10 +144,9 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
             foundTiles.add(tile2)
 
             if(foundTiles.size == gridSize * gridSize){
-                stopTimer()
-                playWinSound()
-                // won the game
-                Toast.makeText(this,"You Won the Game",Toast.LENGTH_LONG).show()
+                handleGameWin()
+
+//                Toast.makeText(this,"You Won the Game",Toast.LENGTH_LONG).show()
 
             }
         }
@@ -156,12 +160,43 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
         gameActive = true
     }
 
+    private fun handleGameWin(){
+       stopTimer()
+        winSoundPlayer.start()
+        showCelebration()
+
+    }
+
+    private fun showCelebration(){
+
+        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val celebrationView = inflater.inflate(R.layout.celebration_layout,null)
+
+        val layoutParams = FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        layoutParams.gravity = Gravity.CENTER
+
+        val rootView = findViewById<ViewGroup>(R.id.mainLayout)
+        rootView.addView(celebrationView,layoutParams)
+
+        celebrationView.setOnClickListener {
+            rootView.removeView(celebrationView)
+        }
+
+        val restartBtn = findViewById<Button>(R.id.restart_button)
+        restartBtn.setOnClickListener {
+            restartGame()
+        }
+    }
+
+
    private fun restartGame(){
 
         gameActive = true
         thisSecondTap = false
         foundTiles.clear()
-
 
         val frag:Fragment? = supportFragmentManager.findFragmentByTag("game")
 
@@ -191,19 +226,20 @@ private lateinit var winSoundPlayer:MediaPlayer
 
         showGridSizeDialog()
        // restartGame()
-        val restartButton = findViewById<Button>(R.id.restartButton)
-        restartButton.setOnClickListener {
-            restartGame()
-        }
+
 
         timerTextView = findViewById(R.id.timerTextView)
         timerHandler = Handler()
         timerRunnable = Runnable { updateTimer() }
 
+
+
       winSoundPlayer =  MediaPlayer.create(this,R.raw.game_win_sound)
 
 
+
     }
+
 
 
     private fun startTimer(){
