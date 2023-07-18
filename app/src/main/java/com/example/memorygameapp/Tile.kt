@@ -24,7 +24,6 @@ data class Tile (var myContext: Context, var value:Int) : androidx.appcompat.wid
     var tileStatus: Status = Status.UNKNOWN
     fun updateTile(){
 
-
         val objectAnim_1 = ObjectAnimator.ofFloat(this,
             "scaleX",1f,0f)
 

@@ -1,28 +1,23 @@
 package com.example.memorygameapp
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
+
 import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.content.Context
-import android.graphics.Color
+import android.content.Intent
+import android.content.SharedPreferences
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
-import android.text.InputType
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.AnimationUtils
 import android.widget.Button
-import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.OneShotPreDrawListener.add
 import androidx.fragment.app.Fragment
 
 enum class Difficulty{
@@ -40,17 +35,13 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
 
     private val foundTiles : ArrayList<Tile> = ArrayList()
 
-    fun playWinSound(){
-        winSoundPlayer.start()
-    }
-
     private fun handleDifficultyLevel(difficulty: Difficulty){
         gridSize = when(difficulty){
             Difficulty.EASY -> 4
             Difficulty.INTERMEDIATE -> 6
             Difficulty.DIFFICULT -> 8
         }
-        restartGame()
+       restartGame()
     }
 
     fun showGridSizeDialog(){
@@ -106,6 +97,7 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
         return tilesArray
     }
 
+
     override fun tileTapped(tile: Tile, index: Int){
 
         if(!gameActive || tile.tileStatus == Status.FOUND || tile.tileStatus == Status.FLIPPED)
@@ -130,8 +122,7 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
 
         }
     }
-
-    fun compare(){
+   private fun compare(){
 
         if(tile1.value == tile2.value){
             tile1.tileStatus = Status.FOUND
@@ -145,9 +136,8 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
 
             if(foundTiles.size == gridSize * gridSize){
                 handleGameWin()
-
-//                Toast.makeText(this,"You Won the Game",Toast.LENGTH_LONG).show()
-
+            }else{
+                gameActive = true
             }
         }
         else{
@@ -163,53 +153,20 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
     private fun handleGameWin(){
        stopTimer()
         winSoundPlayer.start()
-        showCelebration()
 
-    }
+       scoreManager.setTimer(elapsedTime.toInt() / 1000)
+        scoreManager.setCurrentScore(foundTiles.size)
 
-    private fun showCelebration(){
-
-        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val celebrationView = inflater.inflate(R.layout.celebration_layout,null)
-
-        val layoutParams = FrameLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
-        layoutParams.gravity = Gravity.CENTER
-
-        val rootView = findViewById<ViewGroup>(R.id.mainLayout)
-        rootView.addView(celebrationView,layoutParams)
-
-        celebrationView.setOnClickListener {
-            rootView.removeView(celebrationView)
+        if(foundTiles.size  >  scoreManager.getHighScore()){
+            scoreManager.setHighScore(foundTiles.size)
         }
 
-        val restartBtn = findViewById<Button>(R.id.restart_button)
-        restartBtn.setOnClickListener {
-            restartGame()
-        }
-    }
 
 
-   private fun restartGame(){
+        val intent = Intent(this,CelebrationActivity::class.java)
+        startActivity(intent)
 
-        gameActive = true
-        thisSecondTap = false
-        foundTiles.clear()
 
-        val frag:Fragment? = supportFragmentManager.findFragmentByTag("game")
-
-        if(frag!= null){
-            supportFragmentManager.beginTransaction()
-                .remove(frag).commit()
-        }
-        supportFragmentManager
-            .beginTransaction()
-            .add(R.id.gameLayout,GameFragment.newInstance(gridSize),
-                "game").commit()
-
-       startTimer()
     }
 
     private lateinit var timerTextView: TextView
@@ -220,38 +177,61 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
 
 private lateinit var winSoundPlayer:MediaPlayer
 
+   lateinit var scoreManager: ScoreManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         showGridSizeDialog()
-       // restartGame()
-
 
         timerTextView = findViewById(R.id.timerTextView)
         timerHandler = Handler()
         timerRunnable = Runnable { updateTimer() }
 
 
+        winSoundPlayer =  MediaPlayer.create(this,R.raw.game_win_sound)
 
-      winSoundPlayer =  MediaPlayer.create(this,R.raw.game_win_sound)
+       scoreManager = ScoreManager(this)
 
+    }
+fun restartGame(){
+        stopTimer()
+        gameActive = true
+        thisSecondTap = false
+        foundTiles.clear()
 
+        scoreManager.resetScores()
+
+     // Remove the existing gamefragment if it exists
+     val existingFragment = supportFragmentManager.findFragmentByTag("game")
+     if(existingFragment != null){
+         supportFragmentManager.beginTransaction()
+             .remove(existingFragment)
+             .commit()
+     }
+
+     // create a new GameFragment and start the game
+     val gameFragment = GameFragment.newInstance(gridSize)
+     supportFragmentManager.beginTransaction()
+         .add(R.id.gameLayout,gameFragment,"game")
+         .commit()
+
+        startTimer()
 
     }
 
 
-
-    private fun startTimer(){
+ fun startTimer(){
 
         startTime = System.currentTimeMillis()
         timerHandler.postDelayed(timerRunnable,0)
     }
-    private fun stopTimer(){
+   private fun stopTimer(){
 
         timerHandler.removeCallbacks(timerRunnable)
     }
-    private fun updateTimer(){
+ private fun updateTimer(){
         elapsedTime = System.currentTimeMillis() - startTime
         val seconds = (elapsedTime / 1000).toInt()
         val minutes = seconds/60
@@ -265,7 +245,8 @@ private lateinit var winSoundPlayer:MediaPlayer
             .setMessage("Are you sure , You want to exit the game?")
             .setPositiveButton("Exit"){
                 dialog, _ ->
-                finish()
+               // finish()
+                finishAffinity()
             }
             .setNegativeButton("Cancel") {
                 dialog,  _ ->
@@ -281,6 +262,5 @@ private lateinit var winSoundPlayer:MediaPlayer
         showExitDialog()
     }
 
-
-
 }
+

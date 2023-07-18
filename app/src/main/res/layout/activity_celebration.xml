@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
+    android:id="@+id/celebration"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context=".CelebrationActivity"
     android:background="@drawable/splashscreen">
 
     <pl.droidsonroids.gif.GifImageView
@@ -28,7 +31,7 @@
         android:gravity="center"
         android:text="Congratulations!!"
         android:textColor="#EC407A"
-        android:textSize="24sp"
+        android:textSize="28sp"
         android:textStyle="bold" />
 
     <LinearLayout
@@ -49,7 +52,8 @@
             android:padding="5dp"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="00:00"
+            android:text="Time taken by You : 00:00"
+            android:textStyle="bold"
             android:textSize="24sp" />
 
         <TextView
@@ -60,7 +64,8 @@
             android:gravity="center"
             android:padding="2dp"
             android:text="Current Score: 0"
-            android:textSize="18sp" />
+            android:textSize="24sp"
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/tvHighScore"
@@ -70,40 +75,49 @@
             android:gravity="center"
             android:padding="2dp"
             android:text="High Score: 0"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/tvSuccessfulMatches"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Successful Matches: 0"
-            android:padding="2dp"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/tvUnsuccessfulMatches"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="Unsuccessful Matches: 0"
-            android:padding="2dp"
-            android:textSize="18sp" />
+            android:textSize="24sp"
+            android:textStyle="bold"/>
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/restart_button"
+    <LinearLayout
+        android:id="@+id/resetrestart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/scoring"
+        android:layout_below="@id/scoring"
+        android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="23dp"
-        android:layout_marginEnd="149dp"
-        android:background="#AB47BC"
-        android:text="Restart"
-        android:textAllCaps="false" />
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/restartButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:padding="3dp"
+            android:text="Restart"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/sharingButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:padding="3dp"
+            android:text="Share"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/exitbtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:padding="3dp"
+            android:text="Exit"
+            android:textAllCaps="false"/>
+
+    </LinearLayout>
 
 </RelativeLayout>

@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
+import android.widget.GridView
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,14 +20,17 @@ class GameFragment(var gridSize: Int) : Fragment() {
         fun makeTiles () : ArrayList<Tile>
         fun tileTapped (tile: Tile,index:Int)
     }
-
+    private lateinit var scoreManager: ScoreManager
+    private lateinit var recyclerView : RecyclerView
     private lateinit var caller: GameFragmentListener
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
         if(context is GameFragmentListener){
             caller = context
+            scoreManager = ScoreManager(context)
         }
     }
     override fun onCreateView(
@@ -41,7 +45,7 @@ class GameFragment(var gridSize: Int) : Fragment() {
 
 
         val context = activity as Context
-        val recyclerView = frag.findViewById<RecyclerView>(R.id.gamerv)
+         recyclerView = frag.findViewById<RecyclerView>(R.id.gamerv)
         recyclerView.layoutManager = GridLayoutManager(context,gridSize)
 
         val tiles = caller.makeTiles()
@@ -51,6 +55,11 @@ class GameFragment(var gridSize: Int) : Fragment() {
         return frag
     }
 
+    fun shuffleTiles(){
+        val adapter = recyclerView.adapter as? GameFragment.GameRecyclerAdapter
+        adapter?.inputData?.shuffle()
+        adapter?.notifyDataSetChanged()
+    }
     companion object {
         fun newInstance(gridSize:Int): GameFragment{
 
@@ -63,11 +72,21 @@ class GameFragment(var gridSize: Int) : Fragment() {
         }
     }
 
+    fun resetTiles() {
+        shuffleTiles()
+        val adapter = recyclerView.adapter as? GameRecyclerAdapter
+        adapter?.resetTiles()
+    }
+
   internal inner class GameRecyclerAdapter(val inputData: ArrayList<Tile>):
           RecyclerView.Adapter<GameRecyclerAdapter.RecyclerViewHolder> ()
-
   {
-
+      fun resetTiles(){
+          for(tile in inputData){
+              tile.tileStatus = Status.UNKNOWN
+              tile.updateTile()
+          }
+      }
       override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
 
           val inflater = LayoutInflater.from(parent.context)
@@ -96,7 +115,6 @@ class GameFragment(var gridSize: Int) : Fragment() {
           }
       }
 
-
       internal inner class RecyclerViewHolder (inflater: LayoutInflater,
                         parent : ViewGroup) :
               RecyclerView.ViewHolder(inflater.inflate(R.layout.card_list,parent,false)) {
@@ -105,5 +123,8 @@ class GameFragment(var gridSize: Int) : Fragment() {
       }
 
   }
+
+
+
 }
 
