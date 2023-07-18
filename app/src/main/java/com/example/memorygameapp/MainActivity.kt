@@ -154,21 +154,30 @@ class MainActivity : AppCompatActivity() ,GameFragment.GameFragmentListener{
        stopTimer()
         winSoundPlayer.start()
 
-       scoreManager.setTimer(elapsedTime.toInt() / 1000)
-        scoreManager.setCurrentScore(foundTiles.size)
+        val elapsedTimeSeconds = elapsedTime / 1000
+        val currentScore = calculateScore(elapsedTimeSeconds.toInt())
+        val highScore = scoreManager.getHighScore()
 
-        if(foundTiles.size  >  scoreManager.getHighScore()){
-            scoreManager.setHighScore(foundTiles.size)
+        if(currentScore > highScore){
+            scoreManager.setHighScore(currentScore)
         }
+        scoreManager.setTimer(elapsedTimeSeconds.toInt())
+        scoreManager.setCurrentScore(currentScore)
 
 
 
         val intent = Intent(this,CelebrationActivity::class.java)
+        intent.putExtra("CURRENT_SCORE", currentScore)
         startActivity(intent)
 
-
     }
+private fun calculateScore(elapsedTimeSeconds: Int): Int {
+    val baseValue = 100// Adjust this value as desired
+    val factor = 1 // Adjust this value as desired
 
+    val score = (baseValue - elapsedTimeSeconds) * factor
+    return score.coerceIn(0, baseValue)
+}
     private lateinit var timerTextView: TextView
     private var startTime: Long =0
     private var elapsedTime: Long =0

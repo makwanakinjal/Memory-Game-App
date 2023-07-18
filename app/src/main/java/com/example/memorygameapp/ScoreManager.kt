@@ -23,7 +23,10 @@ fun resetGame(){
     }
 
     fun setHighScore(score: Int) {
-        sharedPreferences.edit().putInt(KEY_HIGH_SCORE, score).apply()
+        val highScore = getHighScore()
+        if(score > highScore){
+            sharedPreferences.edit().putInt(KEY_HIGH_SCORE, score).apply()
+        }
     }
 
     fun getTimer(): String {
@@ -44,9 +47,12 @@ fun resetGame(){
     }
 
     fun setCurrentScore(score: Int) {
-        sharedPreferences.edit().putInt(KEY_CURRENT_SCORE, score).apply()
-    }
+        val currentScore = getCurrentScore()
+        if(score > currentScore){
+            sharedPreferences.edit().putInt(KEY_CURRENT_SCORE, score).apply()
 
+        }
+    }
     fun resetScores(){
         setTimer(0)
         setCurrentScore(0)

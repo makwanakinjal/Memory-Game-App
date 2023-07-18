@@ -37,6 +37,7 @@ class CelebrationActivity : AppCompatActivity() {
 
         scoreManager = ScoreManager(this)
 
+
         tvTimer = findViewById(R.id.tvTimer)
         tvCurrentScore = findViewById(R.id.tvCurrentScore)
         tvHighScore = findViewById(R.id.tvHighScore)
@@ -116,7 +117,8 @@ class CelebrationActivity : AppCompatActivity() {
     private fun updateScoreViews(){
 
       val scoreTimer = scoreManager.getTimer().toString()
-      val currentScore  = scoreManager.getCurrentScore().toString()
+        val currentScore = intent.getIntExtra("CURRENT_SCORE",0)
+    //  val currentScore  = scoreManager.getCurrentScore().toString()
      val highScore  = scoreManager.getHighScore().toString()
 
 
